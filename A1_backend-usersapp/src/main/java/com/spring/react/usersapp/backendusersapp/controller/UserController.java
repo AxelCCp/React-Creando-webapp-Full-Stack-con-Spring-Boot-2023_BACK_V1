@@ -1,11 +1,15 @@
 package com.spring.react.usersapp.backendusersapp.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,10 +21,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.react.usersapp.backendusersapp.model.entity.User;
+import com.spring.react.usersapp.backendusersapp.model.request.UserRequest;
 import com.spring.react.usersapp.backendusersapp.model.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(originPatterns = "*")
 public class UserController {
 
     @GetMapping
@@ -59,14 +67,19 @@ public class UserController {
     */
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody User user){
+    public ResponseEntity<?> create(@Valid @RequestBody User user, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return validation(bindingResult);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body( userService.save(user));
     }
 
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody User user, @PathVariable Long id){
-
+    @PutMapping("/{id}")                                //UserRequest : 188
+    public ResponseEntity<?> update(@Valid @RequestBody UserRequest user, BindingResult bindingResult, @PathVariable Long id){
+        if(bindingResult.hasErrors()){
+            return validation(bindingResult);
+        }
         Optional<User> o = userService.update(user, id);
         if(o.isPresent()){
             return ResponseEntity.status(HttpStatus.CREATED).body(o.orElseThrow());
@@ -88,6 +101,15 @@ public class UserController {
         }
     }
 
+
+    private ResponseEntity<?> validation(BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+        bindingResult.getFieldErrors().forEach(err -> {
+            errors.put(err.getField(), "El campo " + err.getField() + " " + err.getDefaultMessage());
+            
+        });
+        return ResponseEntity.badRequest().body(errors);
+    }
 
 
     @Autowired

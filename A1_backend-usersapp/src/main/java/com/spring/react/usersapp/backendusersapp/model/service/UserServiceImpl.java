@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.react.usersapp.backendusersapp.model.dao.UserDao;
 import com.spring.react.usersapp.backendusersapp.model.entity.User;
+import com.spring.react.usersapp.backendusersapp.model.request.UserRequest;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -51,8 +52,8 @@ public class UserServiceImpl implements UserService{
 
     //FORMA 2
     @Override
-    @Transactional
-    public Optional<User> update(User user, Long id) {
+    @Transactional              //UserRequest : 188
+    public Optional<User> update(UserRequest user, Long id) {
 
         Optional<User> o = this.findById(id);
 

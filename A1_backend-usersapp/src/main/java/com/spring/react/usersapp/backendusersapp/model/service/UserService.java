@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.spring.react.usersapp.backendusersapp.model.entity.User;
+import com.spring.react.usersapp.backendusersapp.model.request.UserRequest;
 
 public interface UserService {
 
@@ -13,7 +14,7 @@ public interface UserService {
 
     User save(User user); 
 
-    Optional<User>update(User user, Long id);
+    Optional<User>update(UserRequest user, Long id);           //UserRequest : 188
 
     void removeById(Long id);
 
