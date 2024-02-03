@@ -1,4 +1,4 @@
-package com.spring.react.usersapp.backendusersapp.model;
+package com.spring.react.usersapp.backendusersapp.model.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
