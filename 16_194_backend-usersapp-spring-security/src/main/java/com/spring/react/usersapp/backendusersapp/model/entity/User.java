@@ -1,11 +1,18 @@
 package com.spring.react.usersapp.backendusersapp.model.entity;
 
+import java.util.List;
+
+import org.hibernate.annotations.ManyToAny;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -47,6 +54,16 @@ public class User {
         this.email = email;
     }
 
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    
+
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
@@ -63,4 +80,10 @@ public class User {
     @NotEmpty
     @Column(unique = true)
     private String email;
+
+    @ManyToAny                                              //relacion unidireccional ya q no es necesario obtener los usuarios de los roles. 
+    @JoinTable(name="user_roles", joinColumns = @JoinColumn(name="user_id"), inverseJoinColumns = @JoinColumn(name="role_id"), uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "role_id"})})       //UniqueConstraint : el par de valores de "user_id", "role_id" será unico en tabla user_roles.
+    private List<Role> roles;
+
+    
 }

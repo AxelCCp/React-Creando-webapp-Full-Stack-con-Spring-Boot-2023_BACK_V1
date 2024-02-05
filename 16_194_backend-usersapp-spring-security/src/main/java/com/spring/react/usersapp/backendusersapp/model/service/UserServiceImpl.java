@@ -1,16 +1,17 @@
 package com.spring.react.usersapp.backendusersapp.model.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.spring.react.usersapp.backendusersapp.model.dao.RoleDao;
 import com.spring.react.usersapp.backendusersapp.model.dao.UserDao;
+import com.spring.react.usersapp.backendusersapp.model.entity.Role;
 import com.spring.react.usersapp.backendusersapp.model.entity.User;
 import com.spring.react.usersapp.backendusersapp.model.request.UserRequest;
 
@@ -32,8 +33,18 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional
     public User save(User user) {
+        
         String passwordBCrypt = passwordEncoder.encode(user.getPassword());
         user.setPassword(passwordBCrypt);
+
+        Optional<Role>opRole = this.roleDao.findByName("ROLE_USER");
+
+        List<Role>roles = new ArrayList<>();
+
+        if(opRole.isPresent()){
+            roles.add(opRole.orElseThrow());
+        }
+        user.setRoles(roles);
         return userDao.save(user);  
     }
 
@@ -84,5 +95,8 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired 
+    private RoleDao roleDao;
 
 }
