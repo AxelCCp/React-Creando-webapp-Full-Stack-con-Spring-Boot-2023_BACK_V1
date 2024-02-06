@@ -3,6 +3,7 @@ package com.spring.react.usersapp.backendusersapp.model.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.react.usersapp.backendusersapp.model.dao.RoleDao;
 import com.spring.react.usersapp.backendusersapp.model.dao.UserDao;
+import com.spring.react.usersapp.backendusersapp.model.dto.UserDto;
+import com.spring.react.usersapp.backendusersapp.model.dto.mapper.DtoMapperUser;
 import com.spring.react.usersapp.backendusersapp.model.entity.Role;
 import com.spring.react.usersapp.backendusersapp.model.entity.User;
 import com.spring.react.usersapp.backendusersapp.model.request.UserRequest;
@@ -20,19 +23,30 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> findAll() {
-        return (List<User>) this.userDao.findAll();
+    public List<UserDto> findAll() {
+        List<User>users = (List<User>) this.userDao.findAll();
+        return users.stream().map(u -> DtoMapperUser.builder().setUser(u).build()).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findById(Long id) {
-        return userDao.findById(id);
+    public Optional<UserDto> findById(Long id) {
+
+        //Forma 1
+        /*Optional<User> op = userDao.findById(id);
+        if(op.isPresent()){
+            return Optional.of(DtoMapperUser.builder().setUser(op.orElseThrow()).build());
+        }
+        return Optional.empty();*/
+        
+        //Forma 2
+        return userDao.findById(id).map(u -> DtoMapperUser.builder().setUser(u).build());
+
     }
 
     @Override
     @Transactional
-    public User save(User user) {
+    public UserDto save(User user) {
         
         String passwordBCrypt = passwordEncoder.encode(user.getPassword());
         user.setPassword(passwordBCrypt);
@@ -45,7 +59,7 @@ public class UserServiceImpl implements UserService{
             roles.add(opRole.orElseThrow());
         }
         user.setRoles(roles);
-        return userDao.save(user);  
+        return DtoMapperUser.builder().setUser(userDao.save(user)).build();  
     }
 
     /*FORMA 1
@@ -67,9 +81,9 @@ public class UserServiceImpl implements UserService{
     //FORMA 2
     @Override
     @Transactional              //UserRequest : 188
-    public Optional<User> update(UserRequest user, Long id) {
+    public Optional<UserDto> update(UserRequest user, Long id) {
 
-        Optional<User> o = this.findById(id);
+        Optional<User> o = userDao.findById(id);
 
         User userOp = null;
 
@@ -77,10 +91,10 @@ public class UserServiceImpl implements UserService{
             User userDb = o.orElseThrow();
             userDb.setUsername(user.getUsername());
             userDb.setEmail(user.getEmail());
-            userOp = this.save(userDb);
+            userOp = userDao.save(userDb);
         }
 
-        return Optional.ofNullable(userOp);
+        return Optional.ofNullable(DtoMapperUser.builder().setUser(userOp).build());
     }
 
 
