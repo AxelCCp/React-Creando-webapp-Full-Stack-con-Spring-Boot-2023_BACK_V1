@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.spring.react.usersapp.backendusersapp.model.IUser;
 import com.spring.react.usersapp.backendusersapp.model.dao.RoleDao;
 import com.spring.react.usersapp.backendusersapp.model.dao.UserDao;
 import com.spring.react.usersapp.backendusersapp.model.dto.UserDto;
@@ -47,17 +48,9 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional
     public UserDto save(User user) {
-        
         String passwordBCrypt = passwordEncoder.encode(user.getPassword());
         user.setPassword(passwordBCrypt);
-
-        Optional<Role>opRole = this.roleDao.findByName("ROLE_USER");
-
-        List<Role>roles = new ArrayList<>();
-
-        if(opRole.isPresent()){
-            roles.add(opRole.orElseThrow());
-        }
+        List<Role> roles = this.getRoles(user);
         user.setRoles(roles);
         return DtoMapperUser.builder().setUser(userDao.save(user)).build();  
     }
@@ -88,7 +81,9 @@ public class UserServiceImpl implements UserService{
         User userOp = null;
 
         if(o.isPresent()){
+            List<Role> roles = this.getRoles(user);
             User userDb = o.orElseThrow();
+            userDb.setRoles(roles);
             userDb.setUsername(user.getUsername());
             userDb.setEmail(user.getEmail());
             userOp = userDao.save(userDb);
@@ -103,6 +98,28 @@ public class UserServiceImpl implements UserService{
     public void removeById(Long id) {
         userDao.deleteById(id);
     }
+
+
+    private List<Role> getRoles(IUser user) {
+
+        Optional<Role>ou = this.roleDao.findByName("ROLE_USER");
+
+        List<Role>roles = new ArrayList<>();
+
+        if(ou.isPresent()){
+            roles.add(ou.orElseThrow());
+        }
+
+        if(user.isAdmin()){
+            Optional<Role> oa = roleDao.findByName("ROLE_ADMIN");
+            if(oa.isPresent()){
+                roles.add(oa.orElseThrow());
+            }
+        }
+
+        return roles;
+    }
+
 
     @Autowired
     private UserDao userDao;

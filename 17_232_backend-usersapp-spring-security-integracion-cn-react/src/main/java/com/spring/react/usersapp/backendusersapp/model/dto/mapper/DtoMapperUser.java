@@ -20,10 +20,13 @@ public class DtoMapperUser {
     }
 
     public UserDto build(){
+        
+        boolean isAdmin = user.getRoles().stream().anyMatch(r -> "ROLE_ADMIN".equals(r.getName()));
+
         if(user == null){
             throw new RuntimeException("Debe pasar el entity user!");
         }
-        return new UserDto(this.user.getId(), user.getUsername(), user.getEmail());
+        return new UserDto(this.user.getId(), user.getUsername(), user.getEmail(), isAdmin);
     }
 
     
