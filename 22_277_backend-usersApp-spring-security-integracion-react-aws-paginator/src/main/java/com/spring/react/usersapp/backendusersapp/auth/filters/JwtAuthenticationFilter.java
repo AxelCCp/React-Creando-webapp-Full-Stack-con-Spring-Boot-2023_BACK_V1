@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.authenticationManager = authenticationManager;
     }
 
-    //paso 1
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         
@@ -53,7 +53,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         return this.authenticationManager.authenticate(authToken);
     }
 
-    //paso 3
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
        

@@ -19,7 +19,6 @@ import com.spring.react.usersapp.backendusersapp.model.dao.UserDao;
 @Service
 public class JpaUserDetailService implements UserDetailsService{
 
-    //paso 2
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
